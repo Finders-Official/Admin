@@ -55,18 +55,23 @@ export function PhotoLabsClient({ labs: initialLabs, totalPages, currentPage }: 
   }
 
   return (
-    <div className="p-8 flex flex-col gap-6">
+    <div className="px-10 py-8 flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">사진관 카탈로그</h1>
+        <div>
+          <h1 className="text-3xl font-semibold text-foreground">사진관 카탈로그</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            네이버 지도에서 수집한 필름 현상소. 시딩을 실행하면 신규 등록/업데이트가 진행된다.
+          </p>
+        </div>
         <Button onClick={handleSeed} disabled={seedPending}>
           {seedPending ? "시딩 중..." : "카탈로그 시딩 실행"}
         </Button>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-hidden">
+      <div className="rounded-lg border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="hover:bg-transparent">
               <TableHead>이름</TableHead>
               <TableHead>카테고리</TableHead>
               <TableHead>주소</TableHead>
@@ -78,16 +83,16 @@ export function PhotoLabsClient({ labs: initialLabs, totalPages, currentPage }: 
           <TableBody>
             {labs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-slate-400 py-12">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
                   데이터가 없습니다. 시딩을 실행해주세요.
                 </TableCell>
               </TableRow>
             ) : (
               labs.map((lab) => (
                 <TableRow key={lab.id}>
-                  <TableCell className="font-medium">{lab.name}</TableCell>
-                  <TableCell className="text-slate-600">{lab.category ?? "-"}</TableCell>
-                  <TableCell className="text-slate-600 max-w-xs truncate">
+                  <TableCell className="font-medium text-foreground">{lab.name}</TableCell>
+                  <TableCell className="text-muted-foreground">{lab.category ?? "-"}</TableCell>
+                  <TableCell className="text-muted-foreground max-w-xs truncate">
                     {lab.roadAddress ?? lab.address ?? "-"}
                   </TableCell>
                   <TableCell>
@@ -96,12 +101,12 @@ export function PhotoLabsClient({ labs: initialLabs, totalPages, currentPage }: 
                         href={`https://map.naver.com/p/entry/place/${lab.naverPlaceId}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                        className="inline-flex items-center gap-1 text-primary hover:underline text-sm"
                       >
                         보기 <ExternalLink className="size-3" />
                       </a>
                     ) : (
-                      "-"
+                      <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -137,7 +142,7 @@ export function PhotoLabsClient({ labs: initialLabs, totalPages, currentPage }: 
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "ACTIVE") {
-    return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">활성</Badge>;
+    return <Badge className="bg-primary/15 text-primary border border-primary/30 hover:bg-primary/15">활성</Badge>;
   }
   if (status === "INACTIVE") {
     return <Badge variant="secondary">비활성</Badge>;
@@ -151,18 +156,18 @@ function Pagination({ currentPage, totalPages }: { currentPage: number; totalPag
       {currentPage > 0 && (
         <a
           href={`?page=${currentPage - 1}`}
-          className="px-3 py-1.5 rounded border text-sm hover:bg-slate-50"
+          className="px-3 py-1.5 rounded-md border border-border text-sm text-foreground hover:bg-secondary"
         >
           이전
         </a>
       )}
-      <span className="text-sm text-slate-600">
+      <span className="text-sm text-muted-foreground">
         {currentPage + 1} / {totalPages}
       </span>
       {currentPage + 1 < totalPages && (
         <a
           href={`?page=${currentPage + 1}`}
-          className="px-3 py-1.5 rounded border text-sm hover:bg-slate-50"
+          className="px-3 py-1.5 rounded-md border border-border text-sm text-foreground hover:bg-secondary"
         >
           다음
         </a>
