@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import { seedPhotoLabsAction, updatePhotoLabStatusAction } from "./actions";
-import type { AdminPhotoLabResponse } from "./page";
+import type { AdminPhotoLabResponse } from "./types";
 
 interface Props {
   labs: AdminPhotoLabResponse[];

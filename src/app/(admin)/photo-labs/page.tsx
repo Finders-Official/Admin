@@ -1,19 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { apiJson } from "@/lib/api";
 import { PhotoLabsClient } from "./photo-labs-client";
-
-export interface AdminPhotoLabResponse {
-  id: number;
-  naverPlaceId: string | null;
-  name: string;
-  category: string | null;
-  address: string | null;
-  roadAddress: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  status: "ACTIVE" | "INACTIVE" | "PENDING";
-  phone: string | null;
-}
+import type { AdminPhotoLabResponse } from "./types";
 
 interface PageResponse {
   content: AdminPhotoLabResponse[];
