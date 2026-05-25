@@ -1,37 +1,39 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
-import { usePhotoLabs } from "@/hooks/photoLab/usePhotoLabs";
+import { useCallback, useMemo, useState } from "react";
+import { useInfinitePhotoLabs } from "@/hooks/photoLab/usePhotoLabs";
 import { PhotoLabsTable } from "@/components/photo-labs/photo-labs-table";
-import { PhotoLabsPagination } from "@/components/photo-labs/photo-labs-pagination";
+import { PhotoLabsSearch } from "@/components/photo-labs/photo-labs-search";
 import { SeedButton } from "@/components/photo-labs/seed-button";
-import type { PhotoLabStatus } from "@/types/photoLab";
 
-const ALLOWED_STATUS: PhotoLabStatus[] = ["PENDING", "ACTIVE", "SUSPENDED", "CLOSED"];
-
-function parseStatus(raw: string | null): PhotoLabStatus | undefined {
-  if (!raw) return undefined;
-  return (ALLOWED_STATUS as string[]).includes(raw) ? (raw as PhotoLabStatus) : undefined;
+/** 사진관 이름(대소문자/공백 무시) 매칭. */
+function matchesName(name: string | null, q: string): boolean {
+  if (!q) return true;
+  const norm = (s: string) => s.replace(/\s+/g, "").toLowerCase();
+  return norm(name ?? "").includes(norm(q));
 }
 
 export default function PhotoLabsPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const [search, setSearch] = useState("");
 
-  const page = Math.max(0, Number(searchParams.get("page") ?? 0));
-  const status = parseStatus(searchParams.get("status"));
+  const {
+    labs,
+    total,
+    error,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfinitePhotoLabs({ pageSize: 30 });
 
-  const { data, isLoading, isFetching, error } = usePhotoLabs({ page, status });
-
-  const setPage = useCallback(
-    (nextPage: number) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("page", String(nextPage));
-      router.replace(`/photo-labs?${params.toString()}`);
-    },
-    [router, searchParams],
+  const filtered = useMemo(
+    () => labs.filter((lab) => matchesName(lab.name, search)),
+    [labs, search],
   );
+
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="px-10 py-8 flex flex-col gap-6">
@@ -45,19 +47,32 @@ export default function PhotoLabsPage() {
         <SeedButton />
       </div>
 
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <PhotoLabsSearch value={search} onChange={setSearch} />
+        <p className="text-sm text-muted-foreground tabular-nums">
+          {search
+            ? `${filtered.length}건 검색 · 누적 ${labs.length} / 전체 ${total}건`
+            : `${labs.length} / 전체 ${total}건`}
+        </p>
+      </div>
+
       {error && (
         <p className="text-sm text-red-500">
           목록을 불러오지 못했습니다: {error.message}
         </p>
       )}
 
-      <PhotoLabsTable labs={data?.content ?? []} isLoading={isLoading} />
-
-      <PhotoLabsPagination
-        currentPage={data?.number ?? 0}
-        totalPages={data?.totalPages ?? 0}
-        onChange={setPage}
-        isFetching={isFetching}
+      <PhotoLabsTable
+        labs={filtered}
+        isLoading={isLoading}
+        hasNextPage={hasNextPage && !search}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={handleLoadMore}
+        emptyHint={
+          search
+            ? "검색 결과가 없습니다."
+            : "데이터가 없습니다. 시딩을 실행해주세요."
+        }
       />
     </div>
   );
