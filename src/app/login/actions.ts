@@ -2,8 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+import { API_BASE } from "@/lib/api";
 
 export async function loginAction(
   _prev: { error?: string } | null,
@@ -19,7 +18,7 @@ export async function loginAction(
 
   let data: { accessToken?: string };
   try {
-    const res = await fetch(`${API_URL}/auth/admin/login`, {
+    const res = await fetch(`${API_BASE}/auth/admin/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

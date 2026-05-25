@@ -2,6 +2,9 @@ import { cookies } from "next/headers";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
+// BE 는 server.servlet.context-path = /api 로 떠있다. 모든 endpoint 가 /api 하위에 있다.
+export const API_BASE = `${API_URL}/api`;
+
 export async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
@@ -12,7 +15,7 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  return fetch(`${API_URL}${path}`, {
+  return fetch(`${API_BASE}${path}`, {
     credentials: "include",
     ...init,
     headers,
