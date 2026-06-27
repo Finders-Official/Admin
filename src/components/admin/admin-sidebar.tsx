@@ -2,14 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Images, LogOut } from "lucide-react";
+import { LayoutDashboard, Images, LogOut, Headphones, Megaphone, BookOpen, RectangleHorizontal, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLogout } from "@/hooks/auth/useLogout";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드", icon: LayoutDashboard },
+  { href: "/banners", label: "배너", icon: RectangleHorizontal },
+  { href: "/contents", label: "콘텐츠", icon: BookOpen },
   { href: "/photo-labs", label: "사진관 카탈로그", icon: Images },
+  { href: "/notices", label: "공지사항", icon: Megaphone },
+  { href: "/inquiries", label: "문의", icon: Headphones },
+  { href: "/reports", label: "리포트", icon: ShieldAlert },
 ] as const;
 
 export function AdminSidebar() {
