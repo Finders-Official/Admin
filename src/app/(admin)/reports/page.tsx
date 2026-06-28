@@ -13,24 +13,15 @@ export default function ReportAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchReports() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/admin/reports');
-        if (response.ok) {
-          const data: ReportItem[] = await response.json();
+    import("@/apis/admin/reports.api").then(({ fetchReports }) =>
+      fetchReports()
+        .then((data) => {
           setReports(data);
-          if (data.length > 0) {
-            setSelectedReport(data[0]);
-          }
-        }
-      } catch (error) {
-        console.error("Report fetch error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchReports();
+          if (data.length > 0) setSelectedReport(data[0]);
+        })
+        .catch((err) => console.error("Report fetch error:", err))
+        .finally(() => setIsLoading(false))
+    );
   }, []);
 
   // 상위 주입형 필터링 연산 로직

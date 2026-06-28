@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { InquiryTable } from "@/components/admin/inquiry-table";
 import { InquiryDetail } from "@/components/admin/inquiry-detail";
 import { Inquiry } from "@/types/inquiry";
+import { fetchInquiries, fetchInquiryDetail } from "@/apis/admin/inquiries.api";
 
 export default function InquiryAdminPage() {
     const [inquiries, setInquiries] = useState<Inquiry[]>([]);
@@ -11,29 +12,27 @@ export default function InquiryAdminPage() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        async function fetchInquiries() {
-            try {
-                setIsLoading(true);
-                const response = await fetch('/api/admin/inquiries');
-
-                if (!response.ok) {
-                    throw new Error('데이터를 불러오는데 실패했습니다.');
-                }
-
-                const data: Inquiry[] = await response.json();
+        fetchInquiries()
+            .then((data) => {
                 setInquiries(data);
-
                 if (data.length > 0) {
-                    setSelectedInquiry(data[0]);
+                    fetchInquiryDetail(data[0].id).then(setSelectedInquiry).catch(() => setSelectedInquiry(data[0]));
                 }
-            } catch (error) {
-                console.error("Inquiry fetch error:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
+            })
+            .catch((err) => console.error("Inquiry fetch error:", err))
+            .finally(() => setIsLoading(false));
+    }, []);
 
-        fetchInquiries();
+    const handleSelect = useCallback((inquiry: Inquiry) => {
+        setSelectedInquiry(inquiry);
+        fetchInquiryDetail(inquiry.id)
+            .then(setSelectedInquiry)
+            .catch(() => {});
+    }, []);
+
+    const handleReplySent = useCallback((inquiryId: number) => {
+        setInquiries((prev) => prev.map((inq) => inq.id === inquiryId ? { ...inq, status: "답변완료" } : inq));
+        setSelectedInquiry((prev) => prev?.id === inquiryId ? { ...prev, status: "답변완료" } : prev);
     }, []);
 
     if (isLoading) {
@@ -59,9 +58,9 @@ export default function InquiryAdminPage() {
                         <InquiryTable
                             inquiries={inquiries}
                             selectedId={selectedInquiry?.id ?? 0}
-                            onSelect={setSelectedInquiry}
+                            onSelect={handleSelect}
                         />
-                        <InquiryDetail selectedInquiry={selectedInquiry} />
+                        <InquiryDetail selectedInquiry={selectedInquiry} onReplySent={handleReplySent} />
                     </>
                 ) : (
                     <div className="flex-1 flex items-center justify-center border border-dashed border-[#2C2C2C] rounded-lg m-8 text-gray-500">

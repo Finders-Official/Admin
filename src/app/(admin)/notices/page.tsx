@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { NoticeList } from "@/components/admin/notice-list";
 import { NoticeForm } from "@/components/admin/notice-form";
 import { Notice } from "@/types/notice";
+import { fetchNotices } from "@/apis/admin/notices.api";
 
 const CATEGORIES = ["일반공지", "이벤트 안내", "약관/정책"];
 
@@ -13,23 +14,15 @@ export default function NoticeAdminPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchNotices() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/admin/notices');
-        if (response.ok) {
-          const data = await response.json();
-          setNotices(data);
-        }
-      } catch (error) {
-        console.error("Notice fetch error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchNotices();
+  const loadNotices = useCallback(() => {
+    setIsLoading(true);
+    fetchNotices()
+      .then(setNotices)
+      .catch((err) => console.error("Notice fetch error:", err))
+      .finally(() => setIsLoading(false));
   }, []);
+
+  useEffect(() => { loadNotices(); }, [loadNotices]);
 
   return (
     <main className="flex-1 flex flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
@@ -73,7 +66,7 @@ export default function NoticeAdminPage() {
         {isLoading ? (
           <p className="text-center text-gray-500 animate-pulse">로딩 중...</p>
         ) : isCreating ? (
-          <NoticeForm categories={CATEGORIES} onCancel={() => setIsCreating(false)} />
+          <NoticeForm categories={CATEGORIES} onCancel={() => { setIsCreating(false); loadNotices(); }} />
         ) : (
           <NoticeList notices={notices} activeTab={activeTab} />
         )}

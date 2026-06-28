@@ -11,21 +11,12 @@ export default function ContentAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchContents() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/admin/contents');
-        if (response.ok) {
-          const data = await response.json();
-          setContents(data);
-        }
-      } catch (error) {
-        console.error("Content fetch error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchContents();
+    import("@/apis/admin/contents.api").then(({ fetchContents }) =>
+      fetchContents()
+        .then(setContents)
+        .catch((err) => console.error("Content fetch error:", err))
+        .finally(() => setIsLoading(false))
+    );
   }, []);
 
   return (

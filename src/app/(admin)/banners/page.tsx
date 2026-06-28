@@ -12,21 +12,12 @@ export default function BannerAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchBanners() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/admin/banners');
-        if (response.ok) {
-          const data = await response.json();
-          setBanners(data);
-        }
-      } catch (error) {
-        console.error("Banner fetch error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchBanners();
+    import("@/apis/admin/banners.api").then(({ fetchBanners }) =>
+      fetchBanners()
+        .then(setBanners)
+        .catch((err) => console.error("Banner fetch error:", err))
+        .finally(() => setIsLoading(false))
+    );
   }, []);
 
   const handleSelectBanner = (banner: BannerItem) => {

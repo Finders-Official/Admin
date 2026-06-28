@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { submitInquiryReply } from "@/apis/admin/inquiries.api";
 
 interface Inquiry {
     id: number;
@@ -15,15 +16,30 @@ interface Inquiry {
 
 interface InquiryDetailProps {
     selectedInquiry: Inquiry | null;
+    onReplySent?: (inquiryId: number) => void;
 }
 
-export function InquiryDetail({ selectedInquiry }: InquiryDetailProps) {
+export function InquiryDetail({ selectedInquiry, onReplySent }: InquiryDetailProps) {
     const [replyText, setReplyText] = useState("");
+    const [isSending, setIsSending] = useState(false);
 
-    // 선택된 문의가 바뀌면 입력창을 초기화합니다.
     useEffect(() => {
         setReplyText("");
     }, [selectedInquiry]);
+
+    async function handleSendReply() {
+        if (!selectedInquiry || !replyText.trim()) return;
+        setIsSending(true);
+        try {
+            await submitInquiryReply(selectedInquiry.id, replyText.trim());
+            setReplyText("");
+            onReplySent?.(selectedInquiry.id);
+        } catch (err) {
+            console.error("Reply send error:", err);
+        } finally {
+            setIsSending(false);
+        }
+    }
 
     if (!selectedInquiry) {
         return (
@@ -67,8 +83,12 @@ export function InquiryDetail({ selectedInquiry }: InquiryDetailProps) {
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
                         ></textarea>
-                        <button className="mt-4 bg-white text-black font-medium py-3 rounded-md hover:bg-gray-200 transition-colors">
-                            답변 전송하기
+                        <button
+                            onClick={handleSendReply}
+                            disabled={isSending || !replyText.trim()}
+                            className="mt-4 bg-white text-black font-medium py-3 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            {isSending ? "전송 중..." : "답변 전송하기"}
                         </button>
                     </div>
                 )}
