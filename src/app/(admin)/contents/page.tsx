@@ -20,10 +20,10 @@ export default function ContentAdminPage() {
   }, []);
 
   return (
-    <main className="flex-1 flex flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
-      <header className="p-8 pb-4 flex justify-between items-center shrink-0">
+    <main className="flex min-h-full flex-1 flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
+      <header className="flex shrink-0 flex-col gap-4 p-4 pb-3 sm:p-6 sm:pb-4 lg:flex-row lg:items-center lg:justify-between lg:p-8 lg:pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">홈 콘텐츠 관리</h2>
+          <h2 className="text-xl font-bold text-white sm:text-2xl">홈 콘텐츠 관리</h2>
           <p className="text-sm text-gray-400 mt-1">
             유저 홈 화면에 노출되는 '꼭 알아야 할 필름 소식' 아티클을 관리합니다.
           </p>
@@ -31,14 +31,14 @@ export default function ContentAdminPage() {
         {!isCreating && (
           <button
             onClick={() => setIsCreating(true)}
-            className="bg-orange-600 text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-orange-500 transition-colors"
+            className="w-full rounded-md bg-orange-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-orange-500 sm:w-auto"
           >
             + 새 콘텐츠 작성
           </button>
         )}
       </header>
 
-      <div className="flex-1 overflow-y-auto p-8 pt-4">
+      <div className="flex-1 overflow-y-auto p-4 pt-3 sm:p-6 sm:pt-4 lg:p-8 lg:pt-4">
         {isLoading ? (
           <p className="text-center text-gray-500 animate-pulse">로딩 중...</p>
         ) : isCreating ? (

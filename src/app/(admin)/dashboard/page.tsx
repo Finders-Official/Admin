@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { fetchInquiries } from "@/apis/admin/inquiries.api";
+import { fetchReports } from "@/apis/admin/reports.api";
 import {
   Images,
   Headphones,
@@ -23,24 +25,15 @@ export default function DashboardPage() {
       try {
         setIsLoading(true);
 
-        // 🔗 앞서 만들어둔 실시간 API 엔드포인트들로 동시 병렬 요청을 보냅니다.
-        const [inquiriesRes, reportsRes] = await Promise.all([
-          fetch('/api/admin/inquiries'),
-          fetch('/api/admin/reports')
+        const [inquiries, reports] = await Promise.all([
+          fetchInquiries(),
+          fetchReports(),
         ]);
 
-        if (inquiriesRes.ok && reportsRes.ok) {
-          const inquiries = await inquiriesRes.json();
-          const reports = await reportsRes.json();
-
-          // 실시간으로 '대기중'인 문의 개수 필터링 연산
-          const pendingCount = inquiries.filter((i: any) => i.status === "대기중").length;
-          setPendingInquiries(pendingCount);
-
-          // 실시간으로 5회 이상 누적된 '대기중'인 신고 개수 필터링 연산
-          const activeReportCount = reports.filter((r: any) => r.reportCount >= 5 && r.status === "대기중").length;
-          setActiveReports(activeReportCount);
-        }
+        setPendingInquiries(inquiries.filter((i) => i.status === "대기중").length);
+        setActiveReports(
+          reports.filter((r) => r.reportCount >= 5 && r.status === "대기중").length,
+        );
       } catch (error) {
         console.error("Dashboard stats fetch error:", error);
       } finally {
@@ -52,10 +45,10 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="px-10 py-8 flex flex-col gap-10">
+    <div className="flex flex-col gap-8 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
       {/* 1. 헤더 영역 */}
       <header>
-        <h1 className="text-3xl font-semibold text-foreground">대시보드</h1>
+        <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">대시보드</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Finders 관리자 콘솔. 오늘의 주요 미처리 업무와 서비스 현황을 한눈에 점검합니다.
         </p>
@@ -70,7 +63,7 @@ export default function DashboardPage() {
           {/* 문의 관리 배지 */}
           <Link
             href="/inquiries"
-            className="group flex items-center justify-between rounded-lg border border-border bg-card p-6 transition-colors hover:border-orange-500/50"
+            className="group flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:border-orange-500/50 sm:p-6"
           >
             <div className="flex items-center gap-4">
               <div className="rounded-md bg-orange-500/10 p-3 text-orange-500 group-hover:bg-orange-500/20">
@@ -92,7 +85,7 @@ export default function DashboardPage() {
           {/* 신고 관리 배지 */}
           <Link
             href="/reports"
-            className="group flex items-center justify-between rounded-lg border border-border bg-card p-6 transition-colors hover:border-red-500/50"
+            className="group flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:border-red-500/50 sm:p-6"
           >
             <div className="flex items-center gap-4">
               <div className="rounded-md bg-red-500/10 p-3 text-red-500 group-hover:bg-red-500/20">
@@ -122,7 +115,7 @@ export default function DashboardPage() {
           {/* 카드 1: 사진관 카탈로그 */}
           <Link
             href="/photo-labs"
-            className="group rounded-lg border border-border bg-card p-6 transition-colors hover:border-primary"
+            className="group rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary sm:p-6"
           >
             <div className="flex items-start gap-4">
               <div className="rounded-md bg-secondary p-3 text-primary group-hover:bg-primary/10">
@@ -140,7 +133,7 @@ export default function DashboardPage() {
           {/* 카드 2: 배너 관리 */}
           <Link
             href="/banners"
-            className="group rounded-lg border border-border bg-card p-6 transition-colors hover:border-primary"
+            className="group rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary sm:p-6"
           >
             <div className="flex items-start gap-4">
               <div className="rounded-md bg-secondary p-3 text-primary group-hover:bg-primary/10">
@@ -158,7 +151,7 @@ export default function DashboardPage() {
           {/* 카드 3: 콘텐츠 관리 */}
           <Link
             href="/contents"
-            className="group rounded-lg border border-border bg-card p-6 transition-colors hover:border-primary"
+            className="group rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary sm:p-6"
           >
             <div className="flex items-start gap-4">
               <div className="rounded-md bg-secondary p-3 text-primary group-hover:bg-primary/10">
@@ -176,7 +169,7 @@ export default function DashboardPage() {
           {/* 카드 4: 공지사항 관리 */}
           <Link
             href="/notices"
-            className="group rounded-lg border border-border bg-card p-6 transition-colors hover:border-primary"
+            className="group rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary sm:p-6"
           >
             <div className="flex items-start gap-4">
               <div className="rounded-md bg-secondary p-3 text-primary group-hover:bg-primary/10">

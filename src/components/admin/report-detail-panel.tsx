@@ -83,7 +83,7 @@ export function ReportDetailPanel({ selectedReport }: ReportDetailPanelProps) {
 
         <div className="pt-6 border-t border-[#2C2C2C]">
           {selectedReport.status === "대기중" ? (
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               <button className="flex-1 border border-gray-600 text-gray-300 py-3 rounded-md text-sm font-medium hover:bg-[#242424] transition-colors">
                 신고 기각 (유지)
               </button>

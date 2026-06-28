@@ -32,16 +32,16 @@ export default function ReportAdminPage() {
   });
 
   return (
-    <main className="flex-1 flex flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
-      <header className="p-8 pb-4 shrink-0">
-        <h2 className="text-2xl font-bold text-white">커뮤니티 신고 관리</h2>
+    <main className="flex min-h-full flex-1 flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
+      <header className="shrink-0 p-4 pb-3 sm:p-6 sm:pb-4 lg:p-8 lg:pb-4">
+        <h2 className="text-xl font-bold text-white sm:text-2xl">커뮤니티 신고 관리</h2>
         <p className="text-sm text-gray-400 mt-1">
           유저들이 신고한 게시글 및 댓글을 모니터링하고 처리합니다.
         </p>
       </header>
 
-      <div className="px-8 py-2 flex justify-between items-center border-b border-[#2C2C2C] shrink-0">
-        <div className="flex gap-6">
+      <div className="flex shrink-0 flex-col gap-3 border-b border-[#2C2C2C] px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div className="flex gap-5 overflow-x-auto">
           {["전체", "게시글", "댓글"].map((tab) => (
             <button
               key={tab}
@@ -54,7 +54,7 @@ export default function ReportAdminPage() {
           ))}
         </div>
 
-        <label className="flex items-center gap-2 cursor-pointer text-xs bg-[#1E1E1E] border border-[#2C2C2C] px-3 py-1.5 rounded-md hover:border-gray-500">
+        <label className="flex cursor-pointer items-center gap-2 rounded-md border border-[#2C2C2C] bg-[#1E1E1E] px-3 py-1.5 text-xs hover:border-gray-500">
           <input
             type="checkbox"
             checked={filterMinFive}
@@ -65,7 +65,7 @@ export default function ReportAdminPage() {
         </label>
       </div>
 
-      <div className="flex-1 flex px-8 py-6 gap-6 overflow-hidden">
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 lg:flex-row lg:gap-6 lg:overflow-hidden lg:px-8">
         {isLoading ? (
           <p className="text-center text-gray-500 m-auto animate-pulse">로딩 중...</p>
         ) : (

@@ -36,10 +36,10 @@ export default function PhotoLabsPage() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <div className="px-10 py-8 flex flex-col gap-6">
-      <div className="flex items-start justify-between gap-6">
+    <div className="flex flex-col gap-5 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div>
-          <h1 className="text-3xl font-semibold text-foreground">사진관 카탈로그</h1>
+          <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">사진관 카탈로그</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             네이버 지도에서 수집한 필름 현상소. 시딩을 실행하면 신규 등록/업데이트가 진행된다.
           </p>
@@ -47,7 +47,7 @@ export default function PhotoLabsPage() {
         <SeedButton />
       </div>
 
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <PhotoLabsSearch value={search} onChange={setSearch} />
         <p className="text-sm text-muted-foreground tabular-nums">
           {search

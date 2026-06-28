@@ -16,10 +16,10 @@ export function ContentForm({ onCancel }: ContentFormProps) {
   };
 
   return (
-    <div className="max-w-5xl bg-[#1E1E1E] border border-[#2C2C2C] rounded-lg p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="max-w-5xl rounded-lg border border-[#2C2C2C] bg-[#1E1E1E] p-4 sm:p-8">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-bold text-white">새 콘텐츠 작성</h3>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-gray-400 hover:text-white">
             취소
           </button>
@@ -42,7 +42,7 @@ export function ContentForm({ onCancel }: ContentFormProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="col-span-2">
+          <div className="md:col-span-2">
             <label className="block text-xs text-gray-500 mb-2 uppercase font-bold">메인 타이틀</label>
             <input
               type="text"
@@ -52,7 +52,7 @@ export function ContentForm({ onCancel }: ContentFormProps) {
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
-          <div className="col-span-2">
+          <div className="md:col-span-2">
             <label className="block text-xs text-gray-500 mb-2 uppercase font-bold">서브 타이틀 (설명)</label>
             <input
               type="text"

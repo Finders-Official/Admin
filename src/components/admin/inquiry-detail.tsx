@@ -43,16 +43,16 @@ export function InquiryDetail({ selectedInquiry, onReplySent }: InquiryDetailPro
 
     if (!selectedInquiry) {
         return (
-            <div className="w-1/2 bg-[#1E1E1E] border border-[#2C2C2C] rounded-lg flex items-center justify-center text-gray-500">
+            <div className="flex min-h-56 w-full items-center justify-center rounded-lg border border-[#2C2C2C] bg-[#1E1E1E] text-gray-500 lg:w-1/2">
                 좌측에서 문의 내역을 선택해주세요.
             </div>
         );
     }
 
     return (
-        <div className="w-1/2 bg-[#1E1E1E] border border-[#2C2C2C] rounded-lg flex flex-col">
-            <div className="p-6 border-b border-[#2C2C2C]">
-                <div className="flex justify-between items-start mb-4">
+        <div className="flex min-h-[520px] w-full flex-col rounded-lg border border-[#2C2C2C] bg-[#1E1E1E] lg:min-h-0 lg:w-1/2">
+            <div className="border-b border-[#2C2C2C] p-4 sm:p-6">
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <span className="text-xs text-orange-500 font-medium border border-orange-500/30 bg-orange-500/10 px-2 py-1 rounded-md mb-2 inline-block">
                             {selectedInquiry.category}
@@ -69,7 +69,7 @@ export function InquiryDetail({ selectedInquiry, onReplySent }: InquiryDetailPro
                 </div>
             </div>
 
-            <div className="p-6 flex-1 flex flex-col">
+            <div className="flex flex-1 flex-col p-4 sm:p-6">
                 <h4 className="text-sm font-medium text-gray-400 mb-3">답변 작성</h4>
                 {selectedInquiry.status === "답변완료" ? (
                     <div className="bg-blue-900/10 border border-blue-900/30 p-4 rounded-md text-gray-300 flex-1 whitespace-pre-wrap">

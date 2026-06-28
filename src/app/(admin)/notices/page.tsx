@@ -25,10 +25,10 @@ export default function NoticeAdminPage() {
   useEffect(() => { loadNotices(); }, [loadNotices]);
 
   return (
-    <main className="flex-1 flex flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
-      <header className="p-8 flex justify-between items-center">
+    <main className="flex min-h-full flex-1 flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
+      <header className="flex flex-col gap-4 p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between lg:p-8">
         <div>
-          <h2 className="text-2xl font-bold text-white">공지사항 관리</h2>
+          <h2 className="text-xl font-bold text-white sm:text-2xl">공지사항 관리</h2>
           <p className="text-sm text-gray-400 mt-1">
             앱 내 공지사항 카테고리별 등록 및 관리를 진행합니다.
           </p>
@@ -36,7 +36,7 @@ export default function NoticeAdminPage() {
         {!isCreating && (
           <button
             onClick={() => setIsCreating(true)}
-            className="bg-orange-600 text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-orange-500 transition-colors"
+            className="w-full rounded-md bg-orange-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-orange-500 sm:w-auto"
           >
             + 새 공지 등록
           </button>

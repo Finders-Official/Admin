@@ -18,19 +18,19 @@ export function BannerList({ banners, selectedBanner, onSelect }: BannerListProp
         <div
           key={banner.id}
           onClick={() => onSelect(banner)}
-          className={`group flex bg-[#1E1E1E] border rounded-xl overflow-hidden transition-all cursor-pointer ${selectedBanner?.id === banner.id
+          className={`group flex flex-col bg-[#1E1E1E] border rounded-xl overflow-hidden transition-all cursor-pointer sm:flex-row ${selectedBanner?.id === banner.id
               ? "border-orange-500 ring-1 ring-orange-500"
               : "border-[#2C2C2C] hover:border-gray-500"
             }`}
         >
-          <div className="w-44 h-24 bg-[#242424] shrink-0 overflow-hidden">
+          <div className="h-36 w-full shrink-0 overflow-hidden bg-[#242424] sm:h-24 sm:w-44">
             <img
               src={banner.imageUrl}
               alt="banner"
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="p-4 flex-1 flex flex-col justify-center">
+          <div className="flex flex-1 flex-col justify-center p-4 min-w-0">
             <div className="flex justify-between items-center mb-1">
               <h4 className="text-white font-bold text-sm truncate max-w-[200px]">
                 {banner.adminTitle}

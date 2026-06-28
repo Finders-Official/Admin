@@ -23,7 +23,7 @@ export function NoticeList({ notices, activeTab }: NoticeListProps) {
       {filteredNotices.map((notice) => (
         <div
           key={notice.id}
-          className="bg-[#1E1E1E] border border-[#2C2C2C] p-6 rounded-lg flex justify-between items-center hover:border-gray-600 transition-all group"
+          className="group flex flex-col gap-4 rounded-lg border border-[#2C2C2C] bg-[#1E1E1E] p-4 transition-all hover:border-gray-600 sm:flex-row sm:items-center sm:justify-between sm:p-6"
         >
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
@@ -40,7 +40,7 @@ export function NoticeList({ notices, activeTab }: NoticeListProps) {
               {notice.createdAt} | {notice.category}
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 sm:shrink-0">
             <button className="text-xs text-gray-500 hover:text-white underline">
               수정
             </button>

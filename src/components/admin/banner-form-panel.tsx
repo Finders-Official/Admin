@@ -32,7 +32,7 @@ export function BannerFormPanel({ isEditing, selectedBanner, onCancel }: BannerF
 
   return (
     <div
-      className={`bg-[#1E1E1E] border border-[#2C2C2C] rounded-xl p-8 transition-opacity ${isEditing ? "opacity-100" : "opacity-30 pointer-events-none"
+      className={`bg-[#1E1E1E] border border-[#2C2C2C] rounded-xl p-4 transition-opacity sm:p-8 ${isEditing ? "opacity-100" : "opacity-30 pointer-events-none"
         }`}
     >
       <h3 className="text-lg font-bold text-white mb-6">
@@ -88,7 +88,7 @@ export function BannerFormPanel({ isEditing, selectedBanner, onCancel }: BannerF
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-xs text-gray-500 mb-2 uppercase font-bold">
               노출 상태 설정
@@ -115,7 +115,7 @@ export function BannerFormPanel({ isEditing, selectedBanner, onCancel }: BannerF
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col gap-3 pt-4 sm:flex-row">
           <button
             type="button"
             onClick={onCancel}
