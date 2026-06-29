@@ -4,9 +4,10 @@ import { ContentItem } from "@/types/content";
 
 interface ContentGridProps {
   contents: ContentItem[];
+  onDelete: (id: number) => void;
 }
 
-export function ContentGrid({ contents }: ContentGridProps) {
+export function ContentGrid({ contents, onDelete }: ContentGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {contents.map((content) => (
@@ -39,8 +40,13 @@ export function ContentGrid({ contents }: ContentGridProps) {
             <div className="flex justify-between items-center text-xs text-gray-500 pt-4 border-t border-[#2C2C2C]">
               <span>{content.createdAt}</span>
               <div className="flex gap-3">
-                <button className="hover:text-white">수정</button>
-                <button className="hover:text-red-400">삭제</button>
+                <button className="hover:text-white cursor-not-allowed opacity-40" title="콘텐츠 수정은 상세 조회 후 지원 예정">수정</button>
+                <button
+                  onClick={() => onDelete(content.id)}
+                  className="hover:text-red-400"
+                >
+                  삭제
+                </button>
               </div>
             </div>
           </div>

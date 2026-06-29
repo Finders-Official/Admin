@@ -1,17 +1,19 @@
 'use client';
 
 import { useState } from "react";
-import { createNotice } from "@/apis/admin/notices.api";
+import { Notice } from "@/types/notice";
+import { createNotice, updateNotice } from "@/apis/admin/notices.api";
 
 interface NoticeFormProps {
   categories: string[];
   onCancel: () => void;
+  editingNotice?: Notice | null;
 }
 
-export function NoticeForm({ categories, onCancel }: NoticeFormProps) {
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+export function NoticeForm({ categories, onCancel, editingNotice }: NoticeFormProps) {
+  const [selectedCategory, setSelectedCategory] = useState(editingNotice?.category ?? categories[0]);
+  const [title, setTitle] = useState(editingNotice?.title ?? "");
+  const [content, setContent] = useState(editingNotice?.content ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +24,11 @@ export function NoticeForm({ categories, onCancel }: NoticeFormProps) {
     setIsSaving(true);
     setError(null);
     try {
-      await createNotice({ category: selectedCategory, title: title.trim(), content: content.trim() });
+      if (editingNotice) {
+        await updateNotice(editingNotice.id, { category: selectedCategory, title: title.trim(), content: content.trim() });
+      } else {
+        await createNotice({ category: selectedCategory, title: title.trim(), content: content.trim() });
+      }
       onCancel();
     } catch (err) {
       console.error("Notice save error:", err);
@@ -34,7 +40,7 @@ export function NoticeForm({ categories, onCancel }: NoticeFormProps) {
 
   return (
     <div className="max-w-4xl bg-[#1E1E1E] border border-[#2C2C2C] rounded-lg p-8">
-      <h3 className="text-lg font-bold text-white mb-6">공지사항 등록</h3>
+      <h3 className="text-lg font-bold text-white mb-6">{editingNotice ? "공지사항 수정" : "공지사항 등록"}</h3>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-xs text-gray-500 mb-2 uppercase font-bold">카테고리</label>
@@ -74,7 +80,7 @@ export function NoticeForm({ categories, onCancel }: NoticeFormProps) {
             취소
           </button>
           <button type="submit" disabled={isSaving} className="bg-white text-black px-8 py-2 rounded-md text-sm font-bold hover:bg-gray-200 disabled:opacity-40">
-            {isSaving ? "저장 중..." : "저장하기"}
+            {isSaving ? "저장 중..." : editingNotice ? "수정하기" : "저장하기"}
           </button>
         </div>
       </form>

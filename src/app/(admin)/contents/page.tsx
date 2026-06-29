@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ContentGrid } from "@/components/admin/content-grid";
 import { ContentForm } from "@/components/admin/content-form";
 import { ContentItem } from "@/types/content";
@@ -10,7 +10,7 @@ export default function ContentAdminPage() {
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const loadContents = useCallback(() => {
     import("@/apis/admin/contents.api").then(({ fetchContents }) =>
       fetchContents()
         .then(setContents)
@@ -18,6 +18,19 @@ export default function ContentAdminPage() {
         .finally(() => setIsLoading(false))
     );
   }, []);
+
+  useEffect(() => { loadContents(); }, [loadContents]);
+
+  const handleDelete = useCallback(async (id: number) => {
+    if (!window.confirm("콘텐츠를 삭제하시겠습니까?")) return;
+    const { deleteContent } = await import("@/apis/admin/contents.api");
+    try {
+      await deleteContent(id);
+      loadContents();
+    } catch (err) {
+      console.error("Content delete error:", err);
+    }
+  }, [loadContents]);
 
   return (
     <main className="flex min-h-full flex-1 flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
@@ -42,9 +55,9 @@ export default function ContentAdminPage() {
         {isLoading ? (
           <p className="text-center text-gray-500 animate-pulse">로딩 중...</p>
         ) : isCreating ? (
-          <ContentForm onCancel={() => setIsCreating(false)} />
+          <ContentForm onCancel={() => { setIsCreating(false); loadContents(); }} />
         ) : (
-          <ContentGrid contents={contents} />
+          <ContentGrid contents={contents} onDelete={handleDelete} />
         )}
       </div>
     </main>

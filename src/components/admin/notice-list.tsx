@@ -5,9 +5,11 @@ import { Notice } from "@/types/notice";
 interface NoticeListProps {
   notices: Notice[];
   activeTab: string;
+  onEdit: (notice: Notice) => void;
+  onDelete: (id: number) => void;
 }
 
-export function NoticeList({ notices, activeTab }: NoticeListProps) {
+export function NoticeList({ notices, activeTab, onEdit, onDelete }: NoticeListProps) {
   const filteredNotices = notices.filter((n) => n.category === activeTab);
 
   if (filteredNotices.length === 0) {
@@ -41,10 +43,16 @@ export function NoticeList({ notices, activeTab }: NoticeListProps) {
             </p>
           </div>
           <div className="flex gap-4 sm:shrink-0">
-            <button className="text-xs text-gray-500 hover:text-white underline">
+            <button
+              onClick={() => onEdit(notice)}
+              className="text-xs text-gray-500 hover:text-white underline"
+            >
               수정
             </button>
-            <button className="text-xs text-red-500/70 hover:text-red-400 underline">
+            <button
+              onClick={() => onDelete(notice.id)}
+              className="text-xs text-red-500/70 hover:text-red-400 underline"
+            >
               삭제
             </button>
           </div>

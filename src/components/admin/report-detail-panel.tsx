@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from "react";
 import { ReportItem } from "@/types/report";
+import { processReport } from "@/apis/admin/reports.api";
 
 const REPORT_REASONS = [
   "스팸/홍보",
@@ -12,9 +14,25 @@ const REPORT_REASONS = [
 
 interface ReportDetailPanelProps {
   selectedReport: ReportItem | null;
+  onProcessed: (targetId: string, newStatus: string) => void;
 }
 
-export function ReportDetailPanel({ selectedReport }: ReportDetailPanelProps) {
+export function ReportDetailPanel({ selectedReport, onProcessed }: ReportDetailPanelProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  async function handleProcess(action: "HIDE" | "DISMISS") {
+    if (!selectedReport || isProcessing) return;
+    setIsProcessing(true);
+    try {
+      await processReport(selectedReport.type, selectedReport.targetId, action);
+      onProcessed(selectedReport.targetId, action === "HIDE" ? "숨김처리" : "기각됨");
+    } catch (err) {
+      console.error("Report process error:", err);
+    } finally {
+      setIsProcessing(false);
+    }
+  }
+
   if (!selectedReport) {
     return (
       <div className="w-5/12 bg-[#1E1E1E] border border-[#2C2C2C] rounded-xl flex items-center justify-center text-gray-500 text-sm">
@@ -43,10 +61,10 @@ export function ReportDetailPanel({ selectedReport }: ReportDetailPanelProps) {
 
           <div className="mb-6">
             <h4 className="text-xs text-gray-500 uppercase font-bold mb-2">
-              작성자: {selectedReport.authorName}
+              작성자: {selectedReport.authorName || "—"}
             </h4>
             <div className="bg-[#121212] border border-[#2C2C2C] p-4 rounded-lg text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
-              {selectedReport.content}
+              {selectedReport.content || "(내용 없음)"}
             </div>
           </div>
 
@@ -64,10 +82,7 @@ export function ReportDetailPanel({ selectedReport }: ReportDetailPanelProps) {
                       <div
                         className={`h-full ${count > 0 ? "bg-orange-500" : "bg-transparent"}`}
                         style={{
-                          width: `${selectedReport.reportCount > 0
-                              ? (count / selectedReport.reportCount) * 100
-                              : 0
-                            }%`,
+                          width: `${selectedReport.reportCount > 0 ? (count / selectedReport.reportCount) * 100 : 0}%`,
                         }}
                       />
                     </div>
@@ -84,11 +99,19 @@ export function ReportDetailPanel({ selectedReport }: ReportDetailPanelProps) {
         <div className="pt-6 border-t border-[#2C2C2C]">
           {selectedReport.status === "대기중" ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-              <button className="flex-1 border border-gray-600 text-gray-300 py-3 rounded-md text-sm font-medium hover:bg-[#242424] transition-colors">
+              <button
+                onClick={() => handleProcess("DISMISS")}
+                disabled={isProcessing}
+                className="flex-1 border border-gray-600 text-gray-300 py-3 rounded-md text-sm font-medium hover:bg-[#242424] transition-colors disabled:opacity-40"
+              >
                 신고 기각 (유지)
               </button>
-              <button className="flex-1 bg-red-600 text-white py-3 rounded-md text-sm font-bold hover:bg-red-500 transition-colors">
-                ⚠️ 블라인드 (숨김)
+              <button
+                onClick={() => handleProcess("HIDE")}
+                disabled={isProcessing}
+                className="flex-1 bg-red-600 text-white py-3 rounded-md text-sm font-bold hover:bg-red-500 transition-colors disabled:opacity-40"
+              >
+                {isProcessing ? "처리 중..." : "⚠️ 블라인드 (숨김)"}
               </button>
             </div>
           ) : (

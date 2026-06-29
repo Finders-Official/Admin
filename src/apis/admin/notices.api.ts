@@ -56,6 +56,23 @@ export async function createNotice(data: {
   });
 }
 
+export async function updateNotice(noticeId: number, data: {
+  category?: string;
+  title?: string;
+  content?: string;
+}): Promise<void> {
+  const typeMap: Record<string, string> = {
+    "일반공지": "GENERAL",
+    "이벤트 안내": "EVENT",
+    "약관/정책": "POLICY",
+  };
+  await http.patch(`/admin/notices/${noticeId}`, {
+    type: data.category ? (typeMap[data.category] ?? data.category) : undefined,
+    title: data.title,
+    content: data.content,
+  });
+}
+
 export async function deleteNotice(noticeId: number): Promise<void> {
   await http.delete(`/admin/notices/${noticeId}`);
 }
