@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ContentDetail, createContent, updateContent } from "@/apis/admin/contents.api";
 
 interface ContentFormProps {
@@ -11,9 +11,20 @@ interface ContentFormProps {
 export function ContentForm({ onCancel, editingContent }: ContentFormProps) {
   const [title, setTitle] = useState(editingContent?.title ?? "");
   const [subtitle, setSubtitle] = useState(editingContent?.subtitle ?? "");
+  const [thumbnailUrl, setThumbnailUrl] = useState(editingContent?.thumbnailUrl ?? "");
+  const [thumbnailPreview, setThumbnailPreview] = useState(editingContent?.thumbnailUrl ?? "");
   const [bodyText, setBodyText] = useState(editingContent?.bodyContent ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const localUrl = URL.createObjectURL(file);
+    setThumbnailPreview(localUrl);
+    // 로컬 프리뷰용 — 실제 저장 시 URL을 직접 입력하거나 GCS 업로드 후 URL 입력
+  }
 
   const handlePublish = async (status: "게시중" | "임시저장") => {
     if (!title.trim()) { setError("제목을 입력해주세요."); return; }
@@ -26,6 +37,7 @@ export function ContentForm({ onCancel, editingContent }: ContentFormProps) {
         await updateContent(editingContent.id, {
           title: title.trim(),
           subtitle: subtitle.trim() || undefined,
+          thumbnailUrl: thumbnailUrl.trim() || undefined,
           bodyContent: bodyText.trim(),
           status: beStatus,
         });
@@ -33,6 +45,7 @@ export function ContentForm({ onCancel, editingContent }: ContentFormProps) {
         await createContent({
           title: title.trim(),
           subtitle: subtitle.trim() || undefined,
+          thumbnailUrl: thumbnailUrl.trim() || undefined,
           bodyContent: bodyText.trim(),
           status: beStatus,
         });
@@ -67,10 +80,27 @@ export function ContentForm({ onCancel, editingContent }: ContentFormProps) {
       <div className="space-y-6">
         <div>
           <label className="block text-xs text-gray-500 mb-2 uppercase font-bold">목록 썸네일 (커버 이미지)</label>
-          <div className="w-full h-48 border-2 border-dashed border-[#2C2C2C] rounded-lg flex flex-col items-center justify-center bg-[#121212] cursor-pointer hover:border-orange-500 transition-colors">
-            <span className="text-2xl mb-2">📸</span>
-            <span className="text-sm text-gray-400">클릭하여 이미지 업로드 (권장: 16:9 비율)</span>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full h-48 border-2 border-dashed border-[#2C2C2C] rounded-lg flex flex-col items-center justify-center bg-[#121212] cursor-pointer hover:border-orange-500 transition-colors overflow-hidden relative"
+          >
+            {thumbnailPreview ? (
+              <img src={thumbnailPreview} alt="preview" className="w-full h-full object-cover" onError={() => setThumbnailPreview("")} />
+            ) : (
+              <>
+                <span className="text-2xl mb-2">📸</span>
+                <span className="text-sm text-gray-400">클릭하여 이미지 선택 (권장: 16:9 비율)</span>
+              </>
+            )}
           </div>
+          <input
+            type="url"
+            placeholder="또는 이미지 URL 직접 입력"
+            value={thumbnailUrl}
+            onChange={(e) => { setThumbnailUrl(e.target.value); setThumbnailPreview(e.target.value); }}
+            className="mt-2 w-full bg-[#121212] border border-[#2C2C2C] rounded-md p-2.5 text-xs text-gray-400 focus:outline-none focus:border-orange-500"
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
