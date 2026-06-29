@@ -11,14 +11,16 @@ export default function BannerAdminPage() {
   const [banners, setBanners] = useState<BannerItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  function loadBanners() {
     import("@/apis/admin/banners.api").then(({ fetchBanners }) =>
       fetchBanners()
         .then(setBanners)
         .catch((err) => console.error("Banner fetch error:", err))
         .finally(() => setIsLoading(false))
     );
-  }, []);
+  }
+
+  useEffect(() => { loadBanners(); }, []);
 
   const handleSelectBanner = (banner: BannerItem) => {
     setSelectedBanner(banner);
@@ -64,6 +66,7 @@ export default function BannerAdminPage() {
               isEditing={isEditing}
               selectedBanner={selectedBanner}
               onCancel={() => setIsEditing(false)}
+              onSaved={loadBanners}
             />
           </div>
         )}

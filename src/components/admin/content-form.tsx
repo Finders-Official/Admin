@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { createContent } from "@/apis/admin/contents.api";
 
 interface ContentFormProps {
   onCancel: () => void;
@@ -10,9 +11,28 @@ export function ContentForm({ onCancel }: ContentFormProps) {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [bodyText, setBodyText] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handlePublish = (status: "게시중" | "임시저장") => {
-    console.log({ title, subtitle, bodyText, status });
+  const handlePublish = async (status: "게시중" | "임시저장") => {
+    if (!title.trim()) { setError("제목을 입력해주세요."); return; }
+    if (!bodyText.trim()) { setError("본문을 입력해주세요."); return; }
+    setIsSaving(true);
+    setError(null);
+    try {
+      await createContent({
+        title: title.trim(),
+        subtitle: subtitle.trim() || undefined,
+        bodyContent: bodyText.trim(),
+        status: status === "게시중" ? "PUBLISHED" : "DRAFT",
+      });
+      onCancel();
+    } catch (err) {
+      console.error("Content save error:", err);
+      setError("저장에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -20,16 +40,17 @@ export function ContentForm({ onCancel }: ContentFormProps) {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-bold text-white">새 콘텐츠 작성</h3>
         <div className="flex flex-wrap gap-3">
-          <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-gray-400 hover:text-white">
+          <button type="button" onClick={onCancel} disabled={isSaving} className="px-4 py-2 text-sm text-gray-400 hover:text-white disabled:opacity-40">
             취소
           </button>
-          <button type="button" onClick={() => handlePublish("임시저장")} className="border border-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-[#2C2C2C]">
-            임시저장
+          <button type="button" onClick={() => handlePublish("임시저장")} disabled={isSaving} className="border border-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-[#2C2C2C] disabled:opacity-40">
+            {isSaving ? "저장 중..." : "임시저장"}
           </button>
-          <button type="button" onClick={() => handlePublish("게시중")} className="bg-white text-black px-6 py-2 rounded-md text-sm font-bold hover:bg-gray-200">
-            발행하기
+          <button type="button" onClick={() => handlePublish("게시중")} disabled={isSaving} className="bg-white text-black px-6 py-2 rounded-md text-sm font-bold hover:bg-gray-200 disabled:opacity-40">
+            {isSaving ? "저장 중..." : "발행하기"}
           </button>
         </div>
+        {error && <p className="text-xs text-red-400">{error}</p>}
       </div>
 
       <div className="space-y-6">

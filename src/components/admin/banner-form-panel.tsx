@@ -2,33 +2,73 @@
 
 import { useEffect, useState } from "react";
 import { BannerItem } from "@/types/banner";
+import { createBanner, updateBanner } from "@/apis/admin/banners.api";
 
 interface BannerFormPanelProps {
   isEditing: boolean;
   selectedBanner: BannerItem | null;
   onCancel: () => void;
+  onSaved: () => void;
 }
 
-export function BannerFormPanel({ isEditing, selectedBanner, onCancel }: BannerFormPanelProps) {
-  // 선언적 제어를 위해 key 값을 이용하거나 defaultValue를 동기화하기 위해 로컬 state를 둡니다.
+export function BannerFormPanel({ isEditing, selectedBanner, onCancel, onSaved }: BannerFormPanelProps) {
   const [adminTitle, setAdminTitle] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [status, setStatus] = useState("노출중");
   const [priority, setPriority] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedBanner) {
       setAdminTitle(selectedBanner.adminTitle);
+      setImageUrl(selectedBanner.imageUrl);
       setLinkUrl(selectedBanner.linkUrl);
       setStatus(selectedBanner.status);
       setPriority(selectedBanner.priority);
     } else {
       setAdminTitle("");
+      setImageUrl("");
       setLinkUrl("");
       setStatus("노출중");
       setPriority(1);
     }
+    setError(null);
   }, [selectedBanner]);
+
+  async function handleSave() {
+    if (!adminTitle.trim()) { setError("관리용 명칭을 입력해주세요."); return; }
+    if (!imageUrl.trim()) { setError("이미지 URL을 입력해주세요."); return; }
+    setIsSaving(true);
+    setError(null);
+    try {
+      if (selectedBanner) {
+        await updateBanner(selectedBanner.id, {
+          adminTitle: adminTitle.trim(),
+          objectPath: imageUrl.trim(),
+          linkUrl: linkUrl.trim(),
+          priority,
+          isActive: status === "노출중",
+        });
+      } else {
+        await createBanner({
+          adminTitle: adminTitle.trim(),
+          objectPath: imageUrl.trim(),
+          linkUrl: linkUrl.trim(),
+          priority,
+          isActive: status === "노출중",
+        });
+      }
+      onSaved();
+      onCancel();
+    } catch (err) {
+      console.error("Banner save error:", err);
+      setError("저장에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <div
@@ -55,24 +95,25 @@ export function BannerFormPanel({ isEditing, selectedBanner, onCancel }: BannerF
 
         <div>
           <label className="block text-xs text-gray-500 mb-2 uppercase font-bold">
-            배너 이미지 파일
+            배너 이미지 URL
           </label>
-          <div className="w-full h-40 border-2 border-dashed border-[#2C2C2C] rounded-lg flex flex-col items-center justify-center bg-[#121212] cursor-pointer hover:border-orange-500 transition-colors">
-            {selectedBanner ? (
+          <input
+            type="url"
+            placeholder="https://... 이미지 URL을 입력하세요"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            className="w-full bg-[#121212] border border-[#2C2C2C] rounded-md p-2.5 text-sm text-gray-300 focus:border-orange-500 outline-none"
+          />
+          {imageUrl && (
+            <div className="mt-2 h-32 w-full overflow-hidden rounded-md border border-[#2C2C2C] bg-[#121212]">
               <img
-                src={selectedBanner.imageUrl}
-                className="w-full h-full object-cover rounded-lg opacity-40"
+                src={imageUrl}
                 alt="preview"
+                className="h-full w-full object-cover"
+                onError={(e) => (e.currentTarget.style.display = "none")}
               />
-            ) : (
-              <>
-                <span className="text-xl mb-1">🖼️</span>
-                <span className="text-xs text-gray-400">
-                  통 이미지 파일 등록 (16:9 또는 배너 규격 비율)
-                </span>
-              </>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div>
@@ -108,6 +149,7 @@ export function BannerFormPanel({ isEditing, selectedBanner, onCancel }: BannerF
             </label>
             <input
               type="number"
+              min={1}
               value={priority}
               onChange={(e) => setPriority(Number(e.target.value))}
               className="w-full bg-[#121212] border border-[#2C2C2C] rounded-md p-2.5 text-sm focus:border-orange-500 outline-none"
@@ -115,16 +157,24 @@ export function BannerFormPanel({ isEditing, selectedBanner, onCancel }: BannerF
           </div>
         </div>
 
+        {error && <p className="text-xs text-red-400">{error}</p>}
+
         <div className="flex flex-col gap-3 pt-4 sm:flex-row">
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 border border-gray-600 text-gray-400 py-2.5 rounded-md text-sm hover:text-white transition-colors"
+            disabled={isSaving}
+            className="flex-1 border border-gray-600 text-gray-400 py-2.5 rounded-md text-sm hover:text-white transition-colors disabled:opacity-40"
           >
             취소
           </button>
-          <button type="button" className="flex-1 bg-white text-black py-2.5 rounded-md text-sm font-bold hover:bg-gray-200 transition-colors">
-            저장하기
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex-1 bg-white text-black py-2.5 rounded-md text-sm font-bold hover:bg-gray-200 transition-colors disabled:opacity-40"
+          >
+            {isSaving ? "저장 중..." : "저장하기"}
           </button>
         </div>
       </div>

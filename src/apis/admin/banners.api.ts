@@ -9,7 +9,7 @@ function formatDate(isoString: string): string {
 interface BeBannerItem {
   id: number;
   adminTitle: string;
-  imageUrl: string;
+  imageUrl: string;   // BE response의 imageUrl = entity의 objectPath 값
   linkUrl: string | null;
   priority: number;
   isActive: boolean;
@@ -35,7 +35,7 @@ export async function fetchBanners(): Promise<BannerItem[]> {
 
 export async function createBanner(data: {
   adminTitle: string;
-  imageUrl: string;
+  objectPath: string;  // BE BannerRequest.CreateDTO의 objectPath 필드
   linkUrl: string;
   priority: number;
   isActive: boolean;
@@ -47,7 +47,7 @@ export async function updateBanner(
   bannerId: number,
   data: {
     adminTitle?: string;
-    imageUrl?: string;
+    objectPath?: string;  // BE BannerRequest.UpdateDTO의 objectPath 필드
     linkUrl?: string;
     priority?: number;
     isActive?: boolean;
