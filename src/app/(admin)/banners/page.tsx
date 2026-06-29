@@ -32,6 +32,18 @@ export default function BannerAdminPage() {
     setIsEditing(true);
   };
 
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("배너를 삭제하시겠습니까?")) return;
+    const { deleteBanner } = await import("@/apis/admin/banners.api");
+    try {
+      await deleteBanner(id);
+      if (selectedBanner?.id === id) { setSelectedBanner(null); setIsEditing(false); }
+      loadBanners();
+    } catch (err) {
+      console.error("Banner delete error:", err);
+    }
+  };
+
   return (
     <main className="flex min-h-full flex-1 flex-col overflow-hidden bg-[#121212] text-gray-200 font-sans">
       <header className="flex shrink-0 flex-col gap-4 p-4 pb-3 sm:p-6 sm:pb-4 lg:flex-row lg:items-center lg:justify-between lg:p-8 lg:pb-4">
@@ -59,6 +71,7 @@ export default function BannerAdminPage() {
               banners={banners}
               selectedBanner={selectedBanner}
               onSelect={handleSelectBanner}
+              onDelete={handleDelete}
             />
 
             {/* 에디터/생성 폼 패널 */}

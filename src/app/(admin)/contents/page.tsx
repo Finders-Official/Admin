@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { ContentGrid } from "@/components/admin/content-grid";
 import { ContentForm } from "@/components/admin/content-form";
+import { ContentDetail } from "@/apis/admin/contents.api";
 import { ContentItem } from "@/types/content";
 
 export default function ContentAdminPage() {
-  const [isCreating, setIsCreating] = useState(false);
+  const [formState, setFormState] = useState<{ open: boolean; editing: ContentDetail | null }>({ open: false, editing: null });
   const [contents, setContents] = useState<ContentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,6 +21,16 @@ export default function ContentAdminPage() {
   }, []);
 
   useEffect(() => { loadContents(); }, [loadContents]);
+
+  const handleEdit = useCallback(async (id: number) => {
+    const { getContentDetail } = await import("@/apis/admin/contents.api");
+    try {
+      const detail = await getContentDetail(id);
+      setFormState({ open: true, editing: detail });
+    } catch (err) {
+      console.error("Content detail error:", err);
+    }
+  }, []);
 
   const handleDelete = useCallback(async (id: number) => {
     if (!window.confirm("콘텐츠를 삭제하시겠습니까?")) return;
@@ -41,9 +52,9 @@ export default function ContentAdminPage() {
             유저 홈 화면에 노출되는 '꼭 알아야 할 필름 소식' 아티클을 관리합니다.
           </p>
         </div>
-        {!isCreating && (
+        {!formState.open && (
           <button
-            onClick={() => setIsCreating(true)}
+            onClick={() => setFormState({ open: true, editing: null })}
             className="w-full rounded-md bg-orange-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-orange-500 sm:w-auto"
           >
             + 새 콘텐츠 작성
@@ -54,10 +65,13 @@ export default function ContentAdminPage() {
       <div className="flex-1 overflow-y-auto p-4 pt-3 sm:p-6 sm:pt-4 lg:p-8 lg:pt-4">
         {isLoading ? (
           <p className="text-center text-gray-500 animate-pulse">로딩 중...</p>
-        ) : isCreating ? (
-          <ContentForm onCancel={() => { setIsCreating(false); loadContents(); }} />
+        ) : formState.open ? (
+          <ContentForm
+            editingContent={formState.editing}
+            onCancel={() => { setFormState({ open: false, editing: null }); loadContents(); }}
+          />
         ) : (
-          <ContentGrid contents={contents} onDelete={handleDelete} />
+          <ContentGrid contents={contents} onEdit={handleEdit} onDelete={handleDelete} />
         )}
       </div>
     </main>
