@@ -57,7 +57,7 @@ function mapStatus(status: string): string {
 
 function mapListItem(be: BeInquiryItem): Inquiry {
   return {
-    id: Number(be.id),
+    id: be.id,
     userName: be.memberName ?? "알 수 없음",
     userId: "",
     category: INQUIRY_TYPE_LABELS[be.type] ?? be.type,
@@ -75,11 +75,11 @@ export async function fetchInquiries(status?: string): Promise<Inquiry[]> {
   return (res.data.data?.inquiries ?? []).map(mapListItem);
 }
 
-export async function fetchInquiryDetail(inquiryId: number | string): Promise<Inquiry> {
+export async function fetchInquiryDetail(inquiryId: string): Promise<Inquiry> {
   const res = await http.get<ApiResponse<BeInquiryDetail>>(`/admin/inquiries/${inquiryId}`);
   const be = res.data.data;
   return {
-    id: Number(be.id),
+    id: be.id,
     userName: be.member?.name ?? "알 수 없음",
     userId: be.member?.id ? String(be.member.id) : "",
     category: INQUIRY_TYPE_LABELS[be.type] ?? be.type,
@@ -90,6 +90,6 @@ export async function fetchInquiryDetail(inquiryId: number | string): Promise<In
   };
 }
 
-export async function submitInquiryReply(inquiryId: number | string, replyContent: string): Promise<void> {
-  await http.post(`/admin/inquiries/${inquiryId}/replies`, { replyContent });
+export async function submitInquiryReply(inquiryId: string, replyContent: string): Promise<void> {
+  await http.post(`/admin/inquiries/${inquiryId}/replies`, { content: replyContent });
 }

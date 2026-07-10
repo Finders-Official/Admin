@@ -2,21 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { submitInquiryReply } from "@/apis/admin/inquiries.api";
-
-interface Inquiry {
-    id: number;
-    userName: string;
-    userId: string;
-    category: string;
-    content: string;
-    status: string;
-    createdAt: string;
-    reply: string | null;
-}
+import type { Inquiry } from "@/types/inquiry";
 
 interface InquiryDetailProps {
     selectedInquiry: Inquiry | null;
-    onReplySent?: (inquiryId: number) => void;
+    onReplySent?: (inquiryId: string) => void;
 }
 
 export function InquiryDetail({ selectedInquiry, onReplySent }: InquiryDetailProps) {
