@@ -62,6 +62,11 @@ export function ReportDetailPanel({ selectedReport, onProcessed }: ReportDetailP
           <div className="mb-6">
             <h4 className="text-xs text-gray-500 uppercase font-bold mb-2">
               작성자: {selectedReport.authorName || "—"}
+              {selectedReport.authorMemberId && (
+                <span className="ml-2 text-gray-600 font-normal normal-case">
+                  (ID: {selectedReport.authorMemberId})
+                </span>
+              )}
             </h4>
             <div className="bg-[#121212] border border-[#2C2C2C] p-4 rounded-lg text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
               {selectedReport.content || "(내용 없음)"}

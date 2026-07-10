@@ -24,7 +24,9 @@ function mapStatus(status: string): string {
 
 interface BeReportListItem {
   targetType: string;
-  targetId: number;
+  targetId: string;
+  authorMemberId?: string | null;
+  authorName?: string | null;
   contentSummary: string | null;
   totalReportCount: number;
   status: string;
@@ -33,7 +35,10 @@ interface BeReportListItem {
 
 interface BeReportDetail {
   targetType: string;
-  targetId: number;
+  targetId: string;
+  authorMemberId?: string | null;
+  authorName?: string | null;
+  contentSummary?: string | null;
   totalReportCount: number;
   status: string;
   reasonStats: Record<string, number>;
@@ -45,7 +50,8 @@ function mapListItem(be: BeReportListItem, index: number): ReportItem {
     id: index,
     type: be.targetType === "POST" ? "게시글" : "댓글",
     targetId: String(be.targetId),
-    authorName: "",
+    authorMemberId: be.authorMemberId ?? null,
+    authorName: be.authorName ?? "",
     content: be.contentSummary ?? "(내용 없음)",
     reportCount: be.totalReportCount,
     reasonStats: {},
@@ -63,7 +69,7 @@ export async function fetchReports(targetType?: string): Promise<ReportItem[]> {
   return (res.data.data ?? []).map((item, i) => mapListItem(item, i));
 }
 
-export async function fetchReportDetail(targetType: string, targetId: number | string): Promise<Partial<ReportItem>> {
+export async function fetchReportDetail(targetType: string, targetId: string): Promise<Partial<ReportItem>> {
   const beTargetType = targetType === "게시글" ? "POST" : "COMMENT";
   const res = await http.get<ApiResponse<BeReportDetail>>(
     `/admin/reports/${beTargetType}/${targetId}`
@@ -75,6 +81,9 @@ export async function fetchReportDetail(targetType: string, targetId: number | s
     reasonStats[label] = val;
   });
   return {
+    authorMemberId: be.authorMemberId ?? null,
+    authorName: be.authorName ?? "",
+    content: be.contentSummary ?? "(내용 없음)",
     totalReportCount: be.totalReportCount,
     reasonStats,
     status: mapStatus(be.status),
@@ -83,7 +92,7 @@ export async function fetchReportDetail(targetType: string, targetId: number | s
 
 export async function processReport(
   type: string,
-  targetId: number | string,
+  targetId: string,
   action: "HIDE" | "DISMISS",
   comment?: string
 ): Promise<void> {
