@@ -30,7 +30,7 @@ export default function InquiryAdminPage() {
             .catch(() => {});
     }, []);
 
-    const handleReplySent = useCallback((inquiryId: number) => {
+    const handleReplySent = useCallback((inquiryId: string) => {
         setInquiries((prev) => prev.map((inq) => inq.id === inquiryId ? { ...inq, status: "답변완료" } : inq));
         setSelectedInquiry((prev) => prev?.id === inquiryId ? { ...prev, status: "답변완료" } : prev);
     }, []);
@@ -57,7 +57,7 @@ export default function InquiryAdminPage() {
                     <>
                         <InquiryTable
                             inquiries={inquiries}
-                            selectedId={selectedInquiry?.id ?? 0}
+                            selectedId={selectedInquiry?.id ?? ""}
                             onSelect={handleSelect}
                         />
                         <InquiryDetail selectedInquiry={selectedInquiry} onReplySent={handleReplySent} />

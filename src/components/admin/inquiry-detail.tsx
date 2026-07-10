@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { submitInquiryReply } from "@/apis/admin/inquiries.api";
 
 interface Inquiry {
-    id: number;
+    id: string;
     userName: string;
     userId: string;
     category: string;
@@ -16,7 +16,7 @@ interface Inquiry {
 
 interface InquiryDetailProps {
     selectedInquiry: Inquiry | null;
-    onReplySent?: (inquiryId: number) => void;
+    onReplySent?: (inquiryId: string) => void;
 }
 
 export function InquiryDetail({ selectedInquiry, onReplySent }: InquiryDetailProps) {

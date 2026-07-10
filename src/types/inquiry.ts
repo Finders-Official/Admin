@@ -1,5 +1,5 @@
 export interface Inquiry {
-    id: number;
+    id: string;
     userName: string;
     userId: string;
     category: string;

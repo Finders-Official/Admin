@@ -1,7 +1,7 @@
 'use client';
 
 interface Inquiry {
-    id: number;
+    id: string;
     userName: string;
     userId: string;
     category: string;
@@ -13,7 +13,7 @@ interface Inquiry {
 
 interface InquiryTableProps {
     inquiries: Inquiry[];
-    selectedId: number;
+    selectedId: string;
     onSelect: (inquiry: Inquiry) => void;
 }
 
