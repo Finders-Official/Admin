@@ -49,7 +49,7 @@ function mapListItem(be: BeReportListItem, index: number): ReportItem {
   return {
     id: index,
     type: be.targetType === "POST" ? "게시글" : "댓글",
-    targetId: String(be.targetId),
+    targetId: be.targetId,
     authorMemberId: be.authorMemberId ?? null,
     authorName: be.authorName ?? "",
     content: be.contentSummary ?? "(내용 없음)",
