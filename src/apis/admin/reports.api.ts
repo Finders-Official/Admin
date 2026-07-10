@@ -1,6 +1,7 @@
 import { http } from "@/apis/http";
 import type { ApiResponse } from "@/types/api";
 import type { ReportItem } from "@/types/report";
+import { reportStatusCache } from "@/utils/reportStatusCache";
 
 const REASON_LABEL_MAP: Record<string, string> = {
   SPAM: "스팸/홍보",
@@ -41,15 +42,18 @@ interface BeReportDetail {
 }
 
 function mapListItem(be: BeReportListItem, index: number): ReportItem {
+  const type = be.targetType === "POST" ? "게시글" : "댓글";
+  const targetId = String(be.targetId);
+  const cachedStatus = reportStatusCache.get(type, targetId);
   return {
     id: index,
-    type: be.targetType === "POST" ? "게시글" : "댓글",
-    targetId: String(be.targetId),
+    type,
+    targetId,
     authorName: "",
     content: be.contentSummary ?? "(내용 없음)",
     reportCount: be.totalReportCount,
     reasonStats: {},
-    status: mapStatus(be.status),
+    status: cachedStatus ?? mapStatus(be.status),
     createdAt: formatDate(be.lastReportedAt),
   };
 }
@@ -74,10 +78,11 @@ export async function fetchReportDetail(targetType: string, targetId: number | s
     const label = REASON_LABEL_MAP[key] ?? key;
     reasonStats[label] = val;
   });
+  const cachedStatus = reportStatusCache.get(targetType, String(targetId));
   return {
     totalReportCount: be.totalReportCount,
     reasonStats,
-    status: mapStatus(be.status),
+    status: cachedStatus ?? mapStatus(be.status),
   } as Partial<ReportItem>;
 }
 
@@ -89,4 +94,5 @@ export async function processReport(
 ): Promise<void> {
   const beTargetType = type === "게시글" ? "POST" : "COMMENT";
   await http.post(`/admin/reports/${beTargetType}/${targetId}/process`, { action, comment });
+  reportStatusCache.set(type, String(targetId), action === "HIDE" ? "숨김처리" : "기각됨");
 }
