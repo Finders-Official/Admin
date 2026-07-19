@@ -17,6 +17,7 @@ export function ReportTable({ reports, selectedReport, onSelect }: ReportTablePr
             <th className="p-3 font-medium sm:p-4">상태</th>
             <th className="p-3 font-medium sm:p-4">구분</th>
             <th className="p-3 font-medium sm:p-4">신고수</th>
+            <th className="p-3 font-medium sm:p-4">작성자</th>
             <th className="p-3 font-medium sm:p-4">본문 요약</th>
             <th className="p-3 font-medium sm:p-4">최근 신고일</th>
           </tr>
@@ -51,6 +52,9 @@ export function ReportTable({ reports, selectedReport, onSelect }: ReportTablePr
                 >
                   {report.reportCount}회
                 </span>
+              </td>
+              <td className="p-4 text-gray-400 truncate max-w-[120px]">
+                {report.authorName || "—"}
               </td>
               <td className="p-4 text-gray-300 truncate max-w-[180px]">
                 {report.content}

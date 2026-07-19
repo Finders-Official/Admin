@@ -2,6 +2,7 @@ export interface ReportItem {
   id: number;
   type: string; // "게시글" | "댓글"
   targetId: string;
+  authorMemberId: string | null;
   authorName: string;
   content: string;
   reportCount: number;
