@@ -6,7 +6,7 @@ import type { Inquiry } from "@/types/inquiry";
 
 interface InquiryDetailProps {
     selectedInquiry: Inquiry | null;
-    onReplySent?: (inquiryId: string) => void;
+    onReplySent?: (inquiryId: string, reply: string) => void;
 }
 
 export function InquiryDetail({ selectedInquiry, onReplySent }: InquiryDetailProps) {
@@ -21,9 +21,10 @@ export function InquiryDetail({ selectedInquiry, onReplySent }: InquiryDetailPro
         if (!selectedInquiry || !replyText.trim()) return;
         setIsSending(true);
         try {
-            await submitInquiryReply(selectedInquiry.id, replyText.trim());
+            const reply = replyText.trim();
+            await submitInquiryReply(selectedInquiry.id, reply);
             setReplyText("");
-            onReplySent?.(selectedInquiry.id);
+            onReplySent?.(selectedInquiry.id, reply);
         } catch (err) {
             console.error("Reply send error:", err);
         } finally {

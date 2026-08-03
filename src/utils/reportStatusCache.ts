@@ -34,4 +34,14 @@ export const reportStatusCache = {
     all[key(type, targetId)] = status;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
   },
+
+  /** BE 가 처리 상태를 정상 반영하기 시작하면 캐시를 비워 무한 누적을 막는다. */
+  remove(type: string, targetId: string) {
+    if (typeof window === "undefined") return;
+    const all = readAll();
+    const k = key(type, targetId);
+    if (!(k in all)) return;
+    delete all[k];
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  },
 };

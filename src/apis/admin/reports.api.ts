@@ -23,6 +23,16 @@ function mapStatus(status: string): string {
   return status;
 }
 
+/** BE 가 아직 "대기중" 을 반환할 때만 로컬 캐시로 덮어쓰고, 실제 반영되면 캐시를 제거한다. */
+function resolveStatus(type: string, targetId: string, beStatus: string): string {
+  const status = mapStatus(beStatus);
+  if (status !== "대기중") {
+    reportStatusCache.remove(type, targetId);
+    return status;
+  }
+  return reportStatusCache.get(type, targetId) ?? status;
+}
+
 interface BeReportListItem {
   targetType: string;
   targetId: string;
@@ -49,7 +59,6 @@ interface BeReportDetail {
 function mapListItem(be: BeReportListItem, index: number): ReportItem {
   const type = be.targetType === "POST" ? "게시글" : "댓글";
   const targetId = String(be.targetId);
-  const cachedStatus = reportStatusCache.get(type, targetId);
   return {
     id: index,
     type,
@@ -59,7 +68,7 @@ function mapListItem(be: BeReportListItem, index: number): ReportItem {
     content: be.contentSummary ?? "(내용 없음)",
     reportCount: be.totalReportCount,
     reasonStats: {},
-    status: cachedStatus ?? mapStatus(be.status),
+    status: resolveStatus(type, targetId, be.status),
     createdAt: formatDate(be.lastReportedAt),
   };
 }
@@ -84,14 +93,13 @@ export async function fetchReportDetail(targetType: string, targetId: string): P
     const label = REASON_LABEL_MAP[key] ?? key;
     reasonStats[label] = val;
   });
-  const cachedStatus = reportStatusCache.get(targetType, String(targetId));
   return {
     authorMemberId: be.authorMemberId ?? null,
     authorName: be.authorName ?? "",
     content: be.contentSummary ?? "(내용 없음)",
     totalReportCount: be.totalReportCount,
     reasonStats,
-    status: cachedStatus ?? mapStatus(be.status),
+    status: resolveStatus(targetType, String(targetId), be.status),
   } as Partial<ReportItem>;
 }
 

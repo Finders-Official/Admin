@@ -30,9 +30,9 @@ export default function InquiryAdminPage() {
             .catch(() => {});
     }, []);
 
-    const handleReplySent = useCallback((inquiryId: string) => {
-        setInquiries((prev) => prev.map((inq) => inq.id === inquiryId ? { ...inq, status: "답변완료" } : inq));
-        setSelectedInquiry((prev) => prev?.id === inquiryId ? { ...prev, status: "답변완료" } : prev);
+    const handleReplySent = useCallback((inquiryId: string, reply: string) => {
+        setInquiries((prev) => prev.map((inq) => inq.id === inquiryId ? { ...inq, status: "답변완료", reply } : inq));
+        setSelectedInquiry((prev) => prev?.id === inquiryId ? { ...prev, status: "답변완료", reply } : prev);
     }, []);
 
     if (isLoading) {
