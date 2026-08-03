@@ -1,6 +1,7 @@
 import { http } from "@/apis/http";
 import type { ApiResponse } from "@/types/api";
 import type { ReportItem } from "@/types/report";
+import { reportStatusCache } from "@/utils/reportStatusCache";
 
 const REASON_LABEL_MAP: Record<string, string> = {
   SPAM: "스팸/홍보",
@@ -20,6 +21,16 @@ function mapStatus(status: string): string {
   if (status === "HIDE") return "숨김처리";
   if (status === "DISMISS") return "기각됨";
   return status;
+}
+
+/** BE 가 아직 "대기중" 을 반환할 때만 로컬 캐시로 덮어쓰고, 실제 반영되면 캐시를 제거한다. */
+function resolveStatus(type: string, targetId: string, beStatus: string): string {
+  const status = mapStatus(beStatus);
+  if (status !== "대기중") {
+    reportStatusCache.remove(type, targetId);
+    return status;
+  }
+  return reportStatusCache.get(type, targetId) ?? status;
 }
 
 interface BeReportListItem {
@@ -46,16 +57,18 @@ interface BeReportDetail {
 }
 
 function mapListItem(be: BeReportListItem, index: number): ReportItem {
+  const type = be.targetType === "POST" ? "게시글" : "댓글";
+  const targetId = String(be.targetId);
   return {
     id: index,
-    type: be.targetType === "POST" ? "게시글" : "댓글",
-    targetId: be.targetId,
+    type,
+    targetId,
     authorMemberId: be.authorMemberId ?? null,
     authorName: be.authorName ?? "",
     content: be.contentSummary ?? "(내용 없음)",
     reportCount: be.totalReportCount,
     reasonStats: {},
-    status: mapStatus(be.status),
+    status: resolveStatus(type, targetId, be.status),
     createdAt: formatDate(be.lastReportedAt),
   };
 }
@@ -86,7 +99,7 @@ export async function fetchReportDetail(targetType: string, targetId: string): P
     content: be.contentSummary ?? "(내용 없음)",
     totalReportCount: be.totalReportCount,
     reasonStats,
-    status: mapStatus(be.status),
+    status: resolveStatus(targetType, String(targetId), be.status),
   } as Partial<ReportItem>;
 }
 
@@ -98,4 +111,5 @@ export async function processReport(
 ): Promise<void> {
   const beTargetType = type === "게시글" ? "POST" : "COMMENT";
   await http.post(`/admin/reports/${beTargetType}/${targetId}/process`, { action, comment });
+  reportStatusCache.set(type, String(targetId), action === "HIDE" ? "숨김처리" : "기각됨");
 }
